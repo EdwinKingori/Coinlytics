@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    <h2>Welcome to CoinScraper</h2>
+{% endblock title %}
+
+
+{% block style %}
+    <style>
+      body { font-family: Arial, sans-serif;  line-height: 1.6; background-color: rgb(221, 154, 54); }
+      .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+      .footer { font-size: 0.9em; color: #999; margin-top: 20px; }
+    </style>
+{% endblock style %}
+    
+
+{% block content %}
+    <div class="container">
+        <h2>👋 Hi {{ username }},</h2>
+        <p>Thanks for signing up with <strong>CoinScraper</strong>!</p>
+        <p>We’re excited to have you on board. Start exploring coin prices, trends, and more with your personalized dashboard.</p>
+        <p>Let us know if you need anything.</p>
+        <br>
+        <p>Cheers! <br><strong>The CoinScraper Team 🚀</strong></p>
+      <div class="footer">
+        <p>If you didn’t sign up for this, please ignore this email.</p>
+      </div>
+    </div>
+
+    </div>
+{% endblock content %}
+    
