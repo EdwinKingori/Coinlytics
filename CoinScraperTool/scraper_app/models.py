@@ -88,7 +88,7 @@ class ExchangeRateSnapshot(models.Model):
         return f"{self.base_currency} to {self.target_currency} @ {self.rate}"
 
 
-# ✅ Model to store price comparison btw different coins
+# ✅ Model to store price comparisons btw different coins
 class CoinComparison(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='coin_comparisons')
