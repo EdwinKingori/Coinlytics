@@ -1,6 +1,12 @@
 from rest_framework import serializers
 from users.serializers import UserSerializer
-from scraper_app.models import Profile, ScrapeLog, UserPreference, ScheduledScrape, ErrorLog, ExchangeRateSnapshot, CoinComparison, UserActivity
+
+from scraper_app.models import (
+    Profile, ScrapeLog,
+    UserPreference, ScheduledScrape,
+    ErrorLog, ExchangeRateSnapshot,
+    CoinComparison, UserActivity
+)
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -8,7 +14,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'user_id', 'username', 'bio', 'phone_number']
+        fields = ['id', 'user', 'username', 'bio', 'phone_number']
 
 
 class ScrapeLogSerializer(serializers.ModelSerializer):
@@ -24,7 +30,7 @@ class UserPreferenceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserPreference
-        fields = ['id', 'preferred_currency', 'favorite_coins',
+        fields = ['id', 'user', 'preferred_currency', 'favorite_coins',
                   'notify_on_price_change', 'notify_threshhold']
 
 
@@ -33,7 +39,7 @@ class ScheduleScrapeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ScheduledScrape
-        fields = ['id', 'coin', 'currency',
+        fields = ['id', 'user', 'coin', 'currency',
                   'interval_minutes', 'is_active', 'last_run']
 
 
@@ -42,13 +48,13 @@ class ErrorLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ErrorLog
-        fields = ['id', 'source', 'error_messsage', 'timestamp']
+        fields = ['id', 'source', 'error_message', 'timestamp']
 
 
 class ExchangeRateSnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeRateSnapshot
-        field = ['base_currency', 'target_currency', 'rate', 'timestamp']
+        field = ['id', 'base_currency', 'target_currency', 'rate', 'timestamp']
 
 
 class CoinComparisonSerializer(serializers.ModelSerializer):
@@ -56,7 +62,7 @@ class CoinComparisonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CoinComparison
-        fields = ['id', 'coin1', 'coin2', 'coin1_price',
+        fields = ['id', 'user', 'coin1', 'coin2', 'coin1_price',
                   'coin2_price', 'comparison_date']
 
 
@@ -65,4 +71,4 @@ class UserActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserActivity
-        fields = ['id', 'action', 'timestamp']
+        fields = ['id', 'user', 'action', 'timestamp']
