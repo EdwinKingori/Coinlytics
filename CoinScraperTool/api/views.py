@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from rest_framework import status, filters
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
-from django.db.models import Max
+from django.db.models import Max, Q
 from datetime import timedelta
 
 from api.serializers import (
@@ -34,9 +35,12 @@ from scraper_app.models import (
 # ✅ Viewset for managing user profiles
 class ProfileViewSet(ModelViewSet):
     serializer_class = ProfileSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     permission_classes = [IsAuthenticated]
     filtered_fields = ['username', 'bio']
+    search_fields = ['username']
+    ordering_fields = ['username']
+    ordering = ['username']
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
@@ -62,10 +66,10 @@ class ProfileViewSet(ModelViewSet):
 
 
 # ✅ Viewset for managing scrape logs
-class ScrapeLogViewset(ModelViewSet):
+class ScrapeLogViewSet(ModelViewSet):
     serializer_class = ScrapeLogSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = DjangoFilterBackend
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filtered_fields = ['coin', 'price', 'currency']
     search_fields = ['coin']
     ordering_fields = ['timestamp', 'price']
@@ -112,12 +116,14 @@ class ScrapeLogViewset(ModelViewSet):
 
 
 # ✅ Viewset for managing user's preference
-class UserPreferenceViewset(ModelViewSet):
+class UserPreferenceViewSet(ModelViewSet):
     serializer_class = UserPreferenceSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = DjangoFilterBackend
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['favorite_coins', 'preferred_currency']
     search_fields = ['preferred_currency', 'favorite_coins']
+    ordering_fields = ['preferred_currency']
+    ordering = ['preferred_currency']
 
     def get_queryset(self):
         return UserPreference.objects.filter(user=self.request.user)
@@ -178,10 +184,10 @@ class UserPreferenceViewset(ModelViewSet):
 
 
 # ✅ Viewset to manage scheduled scraping jobs
-class ScheduledScrapeViewset(ModelViewSet):
+class ScheduledScrapeViewSet(ModelViewSet):
     serializer_class = ScheduleScrapeSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = DjangoFilterBackend
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['coin', 'currency', 'is_active']
     ordering_fields = ['last_run', 'interval_minutes']
     ordering = ['-last_run']
@@ -221,10 +227,10 @@ class ScheduledScrapeViewset(ModelViewSet):
 
 
 # ✅ A read-only viewset for error logs with filtering capabilities
-class ErrorLogViewset(ModelViewSet):
+class ErrorLogViewSet(ModelViewSet):
     serializer_class = ErrorLogSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = DjangoFilterBackend
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ['error_message', 'source']
     ordering_fields = ['timestamp']
     ordering = ['-timestamp']
@@ -254,19 +260,20 @@ class ErrorLogViewset(ModelViewSet):
 
 
 # ✅ Read-only viewset for exchange rate snapshots
-class ExchangeRateSnapShotViewset(ModelViewSet):
+class ExchangeRateSnapShotViewSet(ModelViewSet):
     serializer_class = ExchangeRateSnapshotSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = DjangoFilterBackend
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_fields = ['base_currency', 'target_currency']
     ordering = ['rate', 'timestamp']
 
     def get_queryset(self):
         return ExchangeRateSnapshot.objects.all()
 
+    # Fetching the latest timestamp for each currency pair
     @action(detail=False, methods=['get'])
     def latest_rates(self, request):
-        # fetching the latest timestamp for each currency pair
+
         latest_snapshots = ExchangeRateSnapshot.objects.values(
             'base_currency', 'target_currency'
         ).annotate(
@@ -287,9 +294,9 @@ class ExchangeRateSnapShotViewset(ModelViewSet):
         serializer = self.get_serializer(latest_rates, many=True)
         return Response(serializer.data)
 
+    # Fetching exchange rate history for specific currency pair
     @action(detail=False, methods=['get'])
     def currency_pair(self, request):
-        """Get exchange rate history for specific currency pair"""
         base = request.query_params.get('base')
         target = request.query_params.get('target')
         days = int(request.query_params.get('days', 30))
@@ -309,3 +316,109 @@ class ExchangeRateSnapShotViewset(ModelViewSet):
 
         serializer = self.get_serializer(rates, many=True)
         return Response(serializer.data)
+
+
+# ✅  Managing coin comparisons ViewSet
+class CoinComparisonViewSet(ModelViewSet):
+    serializer_class = CoinComparisonSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['coin1', 'coin2']
+    search_fields = ['coin1', 'coin2']
+    ordering_fields = ['comparison_date']
+    ordering = ['-comparison_date']
+
+    def get_queryset(self):
+        return CoinComparison.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['get'])  # Comparing two specific coins
+    def compare_coins(self, request):
+        coin1 = request.query_params.get('coin1')
+        coin2 = request.query_params.get('coin2')
+
+        if not coin1 or not coin2:
+            return Response(
+                {'error': 'Both coin1 and coin2 parameters are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        comparisons = self.get_queryset().filter(
+            Q(coin1__iexact=coin1, coin2__iexact=coin2) |
+            Q(coin1__iexact=coin2, coin2__iexact=coin1)
+        ).order_by('-comparison_date')
+
+        serializer = self.get_serializer(comparisons, many=True)
+        return Response(serializer.data)
+
+    # Fetching recent comparisons (last 7 days)
+    @action(detail=False, methods=['get'])
+    def recent_comparisons(self, request):
+        week_ago = timezone.now() - timedelta(days=7)
+        recent_comparisons = self.get_queryset().filter(
+            comparison_date__gte=week_ago
+        )
+        serializer = self.get_serializer(recent_comparisons, many=True)
+        return Response(serializer.data)
+
+
+# ✅  Read-only ViewSet for user activity tracking
+class UserActivityViewSet(ReadOnlyModelViewSet):
+    serializer_class = UserActivitySerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['action']
+    ordering_fields = ['timestamp']
+    ordering = ['-timestamp']
+
+    def get_queryset(self):
+        return UserActivity.objects.filter(user=self.request.user)
+
+    # Fetching recent user activity (last 24 hours)
+    @action(detail=False, methods=['get'])
+    def recent_activity(self, request):
+
+        yesterday = timezone.now() - timedelta(days=1)
+        recent_activity = self.get_queryset().filter(timestamp__gte=yesterday)
+        serializer = self.get_serializer(recent_activity, many=True)
+        return Response(serializer.data)
+
+    # Fetch activity summary with counts
+    @action(detail=False, methods=['get'])
+    def activity_summary(self, request):
+        from django.db.models import Count
+
+        days = int(request.query_params.get('days', 7))
+        start_date = timezone.now() - timedelta(days=days)
+
+        summary = self.get_queryset().filter(
+            timestamp__gte=start_date
+        ).values('action').annotate(
+            count=Count('id')
+        ).order_by('-count')
+
+        return Response({
+            'period_days': days,
+            'activities': summary,
+            'total_activities': sum(item['count'] for item in summary)
+        })
+
+    @action(detail=False, methods=['post'])  # Logging a new user activity
+    def log_activity(self, request):
+        action = request.data.get('action')
+
+        if not action:
+            return Response(
+                {'error': 'Action parameter is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        activity = UserActivity.objects.create(
+            user=request.user,
+            action=action
+        )
+
+        serializer = self.get_serializer(activity)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
