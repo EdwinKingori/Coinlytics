@@ -3,6 +3,8 @@ services:
     image: mysql:8.0
     container_name: mysql
     restart: unless-stopped
+    ports:
+      - "3306:3306"
     env_file:
       - .env
     environment:
@@ -12,8 +14,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD} 
     volumes:
       - mysql_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    
   
   web:
     build: 
