@@ -1,21 +1,20 @@
 services:
   db:
-    image: mariadb:latest 
-    container_name: mysql
-    restart: unless-stopped
+    image: postgres:15 
+    container_name: postgres-db
+    restart: always
     ports:
-      - "3307:3306"
+      - "5435:5432"
     env_file:
       - .env
     environment:
-      MYSQL_DATABASE: ${DATABASE_NAME}
-      MYSQL_USER: ${DATABASE_USER}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD} 
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}"]
       start_period: 10s
       interval: 10s
       timeout: 5s
@@ -41,5 +40,5 @@ services:
       - .env
 
 volumes:
-  mysql_data:
+  postgres_data: 
   

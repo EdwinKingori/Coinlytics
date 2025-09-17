@@ -5,7 +5,7 @@ WORKDIR /app
 
 # ✅ Installing the dependencies
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt 
 
 # ✅ Copying the Djnago app (CoinScraperTool) Project Files
 COPY . .

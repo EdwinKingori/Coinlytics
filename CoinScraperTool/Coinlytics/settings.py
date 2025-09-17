@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'Coinlytics.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': config('DATABASE_ENGINE', default='django.db.backends.mysql'),
+        'ENGINE': config('DATABASE_ENGINE', default='django.db.backends.postgresql'),
         'NAME': config('DATABASE_NAME'),
         'HOST': config('DATABASE_HOST'),
+        "PORT": config('DATABASE_PORT'),
         'USER': config('DATABASE_USER'),
         'PASSWORD': config('DATABASE_PASSWORD'),
-        "PORT": "3306"
     }
 }
 
