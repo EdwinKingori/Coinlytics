@@ -14,6 +14,12 @@ services:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD} 
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     
   
   web:
@@ -29,7 +35,8 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
 
