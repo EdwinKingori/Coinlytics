@@ -35,7 +35,7 @@ In Summary: The CoinScraper tool wil simplify the crypto market monitorig and in
    
    ✔️ DjangoRest Framework (DRF) - Allws for building robust, secure and scalable APIs
    
-   ✔️ Djoser: implemented to simplify authentication flows like login, logout, password reset, and JWT support.
+   ✔️ Djoser: implemented to simplify authentication flows like login, logout, password reset, and JWT support. Once the MVP is developed, the authentication setup will be transitioned to using keycloak to handle advanced role-based access control. 
    
    ✔️ PostgreSQL - Used as the main relational database for storing user data, coins and historical prices. 
 
@@ -43,9 +43,28 @@ In Summary: The CoinScraper tool wil simplify the crypto market monitorig and in
 
    ✔️ Celery - Help schedule background scraping tasks 
 
- 🧷 Front-End Config:
+
+ 🧷 Frontend Config:
    
-   ✔️ Html & CSS - Used to develop a simple UI for testing objectives
+   ✔️ Html & CSS - Used to develop a simple UI for the MVP and testing objectives.
+
+   ✔️ React (Optional) - To be used as the final stack for developing a SPA dashboard for coin tracking and analytics charts. 
+
+
+📈 Analytics & Visualization
+
+   ✔️ Matplotlib / Seaborn / Plotly: For generating line charts, bar charts, and comparative graphs.
+
+   ✔️ Pandas: Used for cleaning and analyzing historical price data.
+
+
+🧪 Testing & Dev Tools
+
+   ✔️ Postman: For testing API endpoints.
+
+   ✔️ pytest + DRF TestClient: Backend unit and integration tests.
+
+
    
 
 
