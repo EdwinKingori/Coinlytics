@@ -10,9 +10,9 @@ from .views import (
     CoinComparisonViewSet,
     UserActivityViewSet
 )
-from .import views
 
 router = routers.DefaultRouter()
+
 router.register('profiles', ProfileViewSet, basename='profile')
 router.register('scrape-logs', ScrapeLogViewSet, basename='scrapelog')
 router.register('preferences', UserPreferenceViewSet,
