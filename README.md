@@ -41,7 +41,7 @@ In Summary: The CoinScraper tool wil simplify the crypto market monitorig and in
 
    ✔️ Redis - Used to support data caching (e.g., for coin data) and handling expirations (e.g., alerts)
 
-   ✔️ Celery - Help schedule background scraping tasks 
+   ✔️ Celery - Help schedule background scraping tasks such as rendering templates and sending emails asynchronously - replacing the synchronous execution in the signals.
 
 
  🧷 Frontend Config:
