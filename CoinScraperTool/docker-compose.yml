@@ -1,6 +1,7 @@
 services:
+  # PostgreSQL DB(storing data)
   db:
-    image: postgres:15 
+    image: postgres:15
     container_name: postgres-db
     restart: always
     ports:
@@ -19,13 +20,23 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    
-  
+
+  # Redis (celery message broker managing task queue messaging)
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6385:6379"
+    volumes:
+      - redis_data:/data
+
+  # Django Web Application
   web:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
-    container_name: CoinScraperTool 
+    container_name: CoinScraperTool
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -36,9 +47,24 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+
+  # Celery Worker (Executes async/background tasks)
+  celery:
+    build: .
+    container_name: celery-Worker
+    command: celery -A Coinlytics worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
     env_file:
       - .env
 
 volumes:
-  postgres_data: 
-  
+  postgres_data:
+  redis_data:
