@@ -27,7 +27,7 @@ def send_welcome_email(user_email, username):
 
 # ✅ sending reset passwords emails asynchronously
 def send_password_reset_email(user_email, reset_link, username):
-    subject = "Password Reset Request"
+    subject = "Password Reset Request 🔑"
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [user_email]
 
