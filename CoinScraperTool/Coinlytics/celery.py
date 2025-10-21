@@ -10,7 +10,7 @@ app = Celery('Coinlytics')
 
 
 # ✅ Loading settings with the celery_ prefix
-app.config_from_object('django.config.settigs', namespace='CELERY')
+app.config_from_object('django.conf:settings', namespace='CELERY')
 
 
 # ✅ enbaling discover tasks in all installed apps
