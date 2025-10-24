@@ -1,9 +1,20 @@
+import os
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
 
+import core.logging_config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+CELERY_BEAT_SCHEDULE = {
+    "clean_old_logs_daily": {
+        "task": "core.tasks.clean_old_logs",
+        "schedule": timedelta(days=1),
+    },
+}
 
 
 # Quick-start development settings - unsuitable for production
