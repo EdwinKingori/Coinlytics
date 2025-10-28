@@ -29,6 +29,42 @@ Developing a scalable webApp Crypto/ Coin Price Scraper API tool designed to pro
 
 The system is built on modular, event-driven architecture designed for performance and scalability. 
 
++------------------------------+
+|        React Dashboard       |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| Django + DRF API Layer       |
+| - Authentication (Djoser)    |
+| - Coin endpoints             |
+| - Alert preferences          |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| Celery Task Queue            |
+| - Background scraping        |
+| - Email delivery             |
+| - Log maintenance            |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| Redis Broker + Cache Layer   |
+| - Task queue broker          |
+| - Real-time cache for coins  |
+| - Alert expiry management    |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| PostgreSQL Database          |
+| - Users, coins, histories    |
+| - Preferences & analytics    |
++------------------------------+
+
+
  
 ### TechStack 
 
