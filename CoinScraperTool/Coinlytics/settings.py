@@ -1,9 +1,20 @@
+import os
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
 
+import core.logging_config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+CELERY_BEAT_SCHEDULE = {
+    "clean_old_logs_daily": {
+        "task": "core.tasks.clean_old_logs",
+        "schedule": timedelta(days=1),
+    },
+}
 
 
 # Quick-start development settings - unsuitable for production
@@ -131,6 +142,16 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ✅ Celery Configuration settings
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
 
 # ✅ Referencing the user model
 AUTH_USER_MODEL = 'users.CustomUser'
