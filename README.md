@@ -1,33 +1,72 @@
 # Crypto / Coin Price Scraper-API & WebApp
 
+A scalable, asynchronous, and analytics-driven cryptocurrency data platform for monitoring, comparing, and analyzing real-time coin market movements across multiple exchanges.
+
 ## Problem Statement 
 
-In the current world of evolving crypto currencies, coin prices fluctuate rapidly across different exchanges. Traders and investors  often struggle to:
-   - Monitor multiple coins in real time,
-   - Compare coin performance over time, 
-   - Get real time alerts when prices spike &
-   - Analyze coin behavior with historical trends.  
+Cryptocurrency markets operate 24/7 — prices fluctuate within seconds across exchanges.
+For traders and analysts, tracking multiple coins in real-time, comparing historical trends, and reacting to market shifts is often:
 
-To many, these tasks are trivial, but they often require users to visit multiple sites using third-party platforms with limited free access or with written scripts, which is time consuming, technical or costly.  
+   - Fragmented across multiple APIs
+
+   - Limited by paywalls or slow scripts
+
+   - Time-consuming and technically complex
+
+The Coinlytics project eliminates these pain points through a unified API and analytics dashboard that aggregates, stores, and visualizes live crypto data efficiently.  
 
 ## Solution 
 
-1. Project Overview
-Developing a scalable webApp Crypto/ Coin Price Scraper API tool designed to scrape:
-   - Real-time price data of determined cryptocurrecies from multiple sources,   
-   - market cap 
-   - trading volumes &
-   - Provide currency exchange rates and comparisons in visualized data.
+### Project Overview
 
-The tool will allow users to compare different coins based on performance. It will also notify users by (email/sms) by sending alerts and analytics insights based on user-defined preferences and when a user's preferred coin hits a specified threshold. 
+Developing a scalable webApp Crypto/ Coin Price Scraper API tool designed to provide a high-performance data pipeline for:
+   - Real-time price data of determined cryptocurrecies & market cap scraping from multiple sources   
+   - Real-time exchange rates conversions (e.g., BTC→USD, ETH→EUR)
+   - Provide comparative analytics between coins as well as historic trend visualization.
+   - Provide real-time alerts (email/SMS) when a coin crosses a user-defined threshold. 
 
-In Summary: The CoinScraper tool wil simplify the crypto market monitorig and insights extraction for individual users, saving their time, reducing on paid tools and enabling smarter decisions.  
+## Core Architecture 
 
+The system is built on modular, event-driven architecture designed for performance and scalability. 
 
-⚖️  NOTE:  All rules will be applied to abide with the legal terms provided by various target websites. 
++------------------------------+
+|        React Dashboard       |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| Django + DRF API Layer       |
+| - Authentication (Djoser)    |
+| - Coin endpoints             |
+| - Alert preferences          |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| Celery Task Queue            |
+| - Background scraping        |
+| - Email delivery             |
+| - Log maintenance            |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| Redis Broker + Cache Layer   |
+| - Task queue broker          |
+| - Real-time cache for coins  |
+| - Alert expiry management    |
++------------------------------+
+           |
+           ↓
++------------------------------+
+| PostgreSQL Database          |
+| - Users, coins, histories    |
+| - Preferences & analytics    |
++------------------------------+
+
 
  
-2. TechStack 
+### TechStack 
 
  🧷 Backend Config:
    
@@ -48,7 +87,7 @@ In Summary: The CoinScraper tool wil simplify the crypto market monitorig and in
    
    ✔️ Html & CSS - Used to develop a simple UI for the MVP and testing objectives.
 
-   ✔️ React (Optional) - To be used as the final stack for developing a SPA dashboard for coin tracking and analytics charts. 
+   ✔️ React (Planned) - To be used as the final stack for developing a SPA dashboard for providing live coin tracking, analytics and visualizations. 
 
 
 📈 Analytics & Visualization
@@ -58,16 +97,74 @@ In Summary: The CoinScraper tool wil simplify the crypto market monitorig and in
    ✔️ Pandas: Used for cleaning and analyzing historical price data.
 
 
-🧪 Testing & Dev Tools
-
-   ✔️ Postman: For testing API endpoints.
-
-   ✔️ pytest + DRF TestClient: Backend unit and integration tests.
 
 
-   
+### Advanced Integrations 
 
+##### Automated Logging System
 
-4. Features 
+A unified logging system captures lifecycle events across:
+
+   - HTTP requests
+
+   - Database connections
+
+   - Celery task execution
+
+Implementation Highlights:
+
+ - File-based logger (coinlytics_system.log)
+
+ - Timestamped entries using Django’s timezone.now()
+
+ - Lifecycle hooks via Django and Celery signals:
+
+    - request_started, request_finished
+
+    - connection_created
+
+    - task_prerun, task_postrun, task_failure
+
+Example Log:
+
+         [2025-10-20 14:22:10] [INFO] Request started: GET /api/coins/
+         [2025-10-20 14:22:11] [INFO] 🚀 Celery Task Started: scrape_coin_prices
+         [2025-10-20 14:22:11] [INFO] ✅ Celery Task Completed: scrape_coin_prices
 
     
+
+### Security & Data Integrity
+
+- HTTPS enforced for all API communications
+
+- Redis HMAC signing for protected cached data
+
+- Strict CORS and CSRF configurations
+
+- JWT authentication (via Djoser)
+
+- Future plan: Keycloak integration for enterprise-grade RBAC
+
+
+
+### 🧪 Testing, Monitoring & Dev Tools
+
+
+| Tool                        | Purpose                              |
+| --------------------------- | ------------------------------------ |
+| **pytest / DRF TestClient** | Unit and integration testing         |
+| **Postman**                 | Manual endpoint testing              |
+| **Celery Flower**           | Task monitoring dashboard            |
+| **Custom log reports**      | System and task performance tracking |
+
+
+
+### Future Ongoing Enhancements
+
+📊 Interactive React dashboard
+
+🧠 AI-driven anomaly detection for coin volatility
+
+📨 Push notifications (WebSocket-based alerts)
+
+🔄 Exchange integration with Binance, Kraken, and CoinGecko APIs
