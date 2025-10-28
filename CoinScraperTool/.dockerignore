@@ -1,0 +1,8 @@
+# Avoiding unnecessary files to the Docker image during build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
